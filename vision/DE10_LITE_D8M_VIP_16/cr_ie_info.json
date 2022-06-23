@@ -1,0 +1,22 @@
+{
+	"system" : {
+		"platform" : "windows64",
+		"os_name" : "Windows 10",
+		"os_version" : "10.0"
+	},
+	"error" : {
+		"executable" : "quartus_fit",
+		"comment" : "not_applicable",
+		"error_message" : "Access Violation at 0X00007FFF8788A6A2",
+		"source_file" : "unknown",
+		"line" : "0",
+		"stack_trace" : "\t0x7fff8788a6a1: fitter_vpr20kmain + 0x3fa6a1 (aa_route_lookahead_builder_perform_pre_connection_operations + 0x101)\n\t0x7fff8781d8f9: fitter_vpr20kmain + 0x38d8f9 (l_perform_pre_connection_operations + 0x329)\n\t0x7fff8781d38a: fitter_vpr20kmain + 0x38d38a (l_route_to_target + 0x21a)\n\t0x7fff8781cbd8: fitter_vpr20kmain + 0x38cbd8 (l_route_net + 0x518)\n\t0x7fff87817d00: fitter_vpr20kmain + 0x387d00 (aa_route_alg_route_all_nets + 0x220)\n\t0x7fff878a601a: fitter_vpr20kmain + 0x41601a (l_rt_prl_worker + 0xca)\n\t0x7fff87a549cd: fitter_vpr20kmain + 0x5c49cd (l_thread_start_wrapper + 0x3d)\n\t0x7ff854fe467e: CCL_MSG + 0x1467e (?msg_thread_wrapper@@YAPEAXP6APEAXPEAX@Z0@Z + 0x6e)\n\t0x7ff8556b6660: ccl_mem + 0x16660 (?mem_thread_wrapper@@YAPEAXP6APEAXPEAX@Z0@Z + 0x70)\n\t0x7ff854f52791: ccl_thr + 0x2791 (thr_thread_begin + 0xa1)\n\t0x7ff86f787033: KERNEL32 + 0x17033 (BaseThreadInitThunk + 0x13)\n\t0x7ff86f8c2650: ntdll + 0x52650 (RtlUserThreadStart + 0x20)\n",
+		"subsystem" : "unknown"
+	},
+	"quartus" : {
+		"quartus_bits" : "64",
+		"version" : "18.1.0",
+		"build" : "625",
+		"edition" : "Lite Edition"
+	}
+}
