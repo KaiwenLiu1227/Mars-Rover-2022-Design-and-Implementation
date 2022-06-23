@@ -19,7 +19,7 @@
                       {{ parseInt(x_y_loc[0]) }}</h6></div>
                 </el-col>
               </el-row>
-              <el-row style="float: top;margin-top: -20px">
+              <el-row style="float: top;margin-top: -30px">
                 <el-col :span="3">
                   <h5>Y:</h5>
                 </el-col>
@@ -44,7 +44,7 @@
                       {{ (parseInt(yaw)) }}</h6></div>
                 </el-col>
               </el-row>
-              <el-row style="float: top;margin-top: -20px">
+              <el-row style="float: top;margin-top: -30px">
                 <el-col :span="6">
                   <h5>Alien:</h5>
                 </el-col>
@@ -59,19 +59,44 @@
               <el-row>
                 <el-switch active-text="ManualMode" v-model="driveState"/>
               </el-row>
-              <el-row>
+              <el-row style="">
+                <h5>Sensor Quality:</h5>
+              </el-row>
+              <el-row style="margin-top: -10px">
                 <div
-                    style="height: 60px; width: 60px; border-radius: 100%; border: 2px solid rgb(199, 198, 198); margin-top: 15px;margin-left: 30px">
-                  <div style="width: 60px;height: 60px;"
-                       v-bind:style="{transform: 'rotate('+yaw*180/Math.PI+'deg)'}"></div>
-                </div>
+                    style="width: 24px;height: 14px;background-color: #cccfd2;border-radius: 15%; margin-left: 30px">
+                  <h6 style="float: top;margin-top: 0px">{{ sensor_quality }}</h6></div>
               </el-row>
             </el-col>
           </el-row>
           <el-row>
-            <div class="text-container">
-              <p class="text" v-for="value in pushList()" :key="value.id">{{ value.text }}</p>
-            </div>
+            <el-col span="4" style="background-color: rgba(255,255,255,0.18); border-radius: 10px;padding-top: 10px;margin-top: -5px;padding-bottom: 5px;padding-left: 5px;margin-left: -5px">
+              <el-row>
+                <div class="text-container">
+                  <p class="text" v-for="value in pushList()" :key="value.id">{{ value.text }}</p>
+                </div>
+              </el-row>
+              <el-row>
+                <el-input
+                    style="width: 200px;height: 24px;"
+                    placeholder="Enter command line"
+                    v-model="cmd_input"
+                    clearable>
+                </el-input>
+              </el-row>
+            </el-col>
+            <el-col span="4">
+              <h5 style="margin-top: 15px;margin-left: 30px">Yaw:</h5>
+            </el-col>
+            <el-col span="6">
+              <div
+                  style="height: 60px; width: 60px; border-radius: 100%; margin-top: -10px;margin-left: 10px"
+                  class="shadedbox">
+                <img alt="" src="../assets/arrow.png"
+                     style="object-fit: scale-down; opacity: 0.6; height: 50px;width: 50px;margin-top: 5px"
+                     opacity="" v-bind:style="{transform: 'rotate('+(yaw*180-90)/Math.PI+'deg)'}">
+              </div>
+            </el-col>
           </el-row>
         </el-col>
       </div>
@@ -146,14 +171,16 @@ export default {
   },
   data() {
     return {
-      monitor_socket: null,
+      web_socket: null,
       bootState: false,
       connectState: false,
       driveState: false,
       mouse_state: false,
+      sensor_quality: 0,
+      cmd_input: '',
       speed: 0,
       sensitivity: 0,
-      bit_rate:0,
+      bit_rate: 0,
       xy_str: "",
       x_y_loc: [200, 100],
       yaw: 0,
@@ -180,7 +207,7 @@ export default {
 
     setInterval(
         () => {
-          //gamepad test
+          //gamepad test comment following part for real situation
           this.x_y_loc[0] += this.moveX
           this.x_y_loc[1] += this.moveY
           if (this.moveX > 0) {
@@ -241,7 +268,7 @@ export default {
             this.cmessage.push(pwn1)
             this.cmessage.push(pwn2)
             this.dataList.push("control msg sent: " + this.cmessage);
-            this.monitor_socket.send(String.fromCharCode.apply(null, this.cmessage))
+            this.web_socket.send(String.fromCharCode.apply(null, this.cmessage))
           }
 
         },
@@ -309,21 +336,21 @@ export default {
     initWebSocket() {
       const gateway = "ws://192.168.4.1:80/control";
       console.log('Trying to open a WebSocket connection...');
-      this.monitor_socket = new WebSocket(gateway);
-      this.monitor_socket.onopen = this.RegMonitor;
-      this.monitor_socket.onclose = this.onClose;
-      this.monitor_socket.onmessage = this.onMessage;
+      this.web_socket = new WebSocket(gateway);
+      this.web_socket.onopen = this.RegMonitor;
+      this.web_socket.onclose = this.onClose;
+      this.web_socket.onmessage = this.onMessage;
 
     },
     RegMonitor() {
       console.log('monitor socket opening');
-      this.monitor_socket.send(String.fromCharCode.apply(null, [36, 0, 0]))
+      this.web_socket.send(String.fromCharCode.apply(null, [36, 0, 0]))
       this.RegGamepad()
       console.log('monitor socket opened');
 
     },
     RegGamepad() {
-      this.gamepad_socket.send(String.fromCharCode.apply(null, [36, 0, 1]))
+      this.web_socket.send(String.fromCharCode.apply(null, [36, 0, 1]))
       console.log('gamepad socket opened');
     },
     RegControl() {
@@ -346,7 +373,7 @@ export default {
     },
     pushList() {
       const len = this.dataList.length
-      return [{id: 1, text: this.dataList[len - 4]},
+      return [
         {id: 2, text: this.dataList[len - 3]},
         {id: 3, text: this.dataList[len - 2]},
         {id: 4, text: this.dataList[len - 1]}]
@@ -386,11 +413,12 @@ export default {
       this.mouse_state = true;
     },
     mouseMove(e) {
+      const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
       if (this.mouse_state && this.driveState) {
         let x = e.offsetX
         let y = e.offsetY
-        this.joystick_x = x - 75
-        this.joystick_y = y - 100
+        this.joystick_x = clamp(x - 75, -50, 100)
+        this.joystick_y = clamp(y - 100, -50, 100)
         this.moveX = this.joystick_x / 50
         this.moveY = this.joystick_y / 50
         console.log("touch moved %d %d", this.joystick_x, this.joystick_y)
@@ -439,24 +467,25 @@ export default {
           stick_y = -50
         }
         this.joystick_y = stick_y
-        this.moveX = (this.joystick_x - 50) / 50
-        this.moveY = (this.joystick_y - 50) / 50
+        this.moveX = (this.joystick_x - 75) / 50
+        this.moveY = (this.joystick_y - 75) / 50
       }
       // console.log("touch moved %d %d",this.moveX,this.moveY)
     },
   }
-
 }
 </script>
 
 <style scoped>
 .text-container {
   font-size: 14px;
-  color: #afafaf;
-  /*margin-left: 5%;*/
+  color: #929292;
+  margin-left: 10px;
+  margin-top: -5px;
   /*margin-top: 40px;*/
-  height: 150px;
-  width: 400px;
+  /*height: 150px;*/
+  width: 230px;
+
 }
 
 .text {
