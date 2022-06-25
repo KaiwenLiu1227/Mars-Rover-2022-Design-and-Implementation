@@ -13,7 +13,7 @@
             <el-row>
               <el-col :span="7">
                 <el-row>
-                  <el-switch active-text="Reset" v-model="bootState"/>
+                  <el-switch active-text="Reset" v-model="resetState"/>
 <!--                  <el-button style="height: 18px;width: 36px;border-radius: 15px;border: #c9c9c9 solid"></el-button>-->
 <!--                  <button style="height: 18px;width: 36px;border-radius: 15px;border: #c9c9c9 solid" onclick=""></button>-->
                 </el-row>
@@ -191,6 +191,7 @@ export default {
     return {
       web_socket: null,
       bootState: false,
+      resetState:false,
       connectState: false,
       driveState: false,
       mouse_state: false,
@@ -217,15 +218,6 @@ export default {
     }
   },
   mounted() {
-    const that = this;
-
-    // this.initWebSocket();
-
-    document.addEventListener('keydown', that.handleWatchEnter);
-    // const canvas = document.getElementById("ctx");
-    // const ctx = canvas.getContext("2d");
-
-
     setInterval(
         () => {
           //gamepad test comment following part for real situation
@@ -286,10 +278,10 @@ export default {
             }
             var pwn1 = parseInt(left/2)
             var pwn2 =  parseInt(right/2)
-            console.log("%f , %f" ,pwn1, pwn2)
+            // console.log("%f , %f" ,pwn1, pwn2)
             var cmessage = new Uint8Array([36, 1,status_byte,pwn1,pwn2])
             this.dataList.push("control msg sent: " + cmessage);
-            console.log(cmessage)
+            // console.log(cmessage)
             // var string=""
             // for(var i=0;i<cmessage.length;i++){
             //   string+=String.fromCharCode(cmessage[i])
@@ -300,9 +292,6 @@ export default {
         },
         150
     )
-
-    // ctx.fillStyle = "#717171";
-    // ctx.fillRect(this.x_y_loc[0] - 4, this.x_y_loc[1] - 4, 8, 8,)
   },
   watch: {
     xy_str: function (new_XY, old_XY) {
@@ -353,13 +342,21 @@ export default {
     yaw: function () {
 
     },
-    bootState: function () {
-      for (let i = 0; i < 8; i++) {
-        this.generateAlian()
-      }
+    resetState: function () {
+      this.ResetCanvas()
+      // for (let i = 0; i < 8; i++) {
+      //   this.generateAlian()
+      // }
     }
   },
   methods: {
+    ResetCanvas(){
+      this.resetState=false
+      const canvas = document.getElementById("ctx");
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle="#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    },
     initWebSocket() {
       const gateway = "ws://192.168.4.1:80/control";
       console.log('Trying to open a WebSocket connection...');

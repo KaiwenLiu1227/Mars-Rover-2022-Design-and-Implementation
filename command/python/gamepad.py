@@ -46,6 +46,7 @@ async def control():
                 break
             time.sleep(0.05)
         while (done != True):
+            print("hi")
             for event in pygame.event.get():  # User did something
                 if event.type == pygame.QUIT:  # If user clicked close
                     done = True  # Flag that we are done so we exit this loop
