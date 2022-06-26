@@ -11,7 +11,10 @@
     "core-js": "^3.8.3",
     "element-plus": "^2.2.6",
     "element-ui": "^2.15.9",
+    "konva": "^8.3.10",
     "vue": "^3.2.13",
+    "vue-konva": "^3.0.0",
+    "vue3-konva": "^2.1.7",
     "vue3-touch-events": "^4.1.0"
   },
   "devDependencies": {

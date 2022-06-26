@@ -9,7 +9,8 @@
         <el-button round size="small" style="position:absolute; margin-left: 250px;margin-top: 120px;" @click="changeDisplay">Desktop</el-button>
         <particles style="margin-bottom: 10px; margin-top: 10px"/>
       </el-header>
-        <el-main style="background-image: url('./assets/rover.png')"><RoverMap/></el-main>
+      <el-main ><RoverMap/></el-main>
+<!--        <el-main ><RoverMap/></el-main> style="background-image: url('./assets/rover.png')"-->
         <el-footer style="width: 80%; margin-top: 100px; margin-bottom: 70px">
           <div style="width: 100px; height: 50px; margin-top: -50px; margin-left: 2.5%; ">
           <img alt="" src="./assets/rover.gif" style="object-fit: scale-down; height: 100px;width: 200px">
