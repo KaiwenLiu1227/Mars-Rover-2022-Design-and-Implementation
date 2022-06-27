@@ -2,6 +2,7 @@
   <div>
     <v-stage ref="stage" :config="configKonva">
       <v-layer ref="layer">
+        <v-circle v-for="(item,i) in obsList" :config="configCircle[i]">{{i}}</v-circle>
         <v-line :config="configLine" :key="componentKey"/>
       </v-layer>
       <v-layer ref="rover"  :config="configImgLayer">
@@ -31,14 +32,8 @@ export default {
         height: 535,
         draggable: true
       },
-      configCircle: {
-        x: 100,
-        y: 100,
-        radius: 70,
-        fill: 'red',
-        stroke: 'black',
-        strokeWidth: 4
-      },
+      configCircle: [
+      ],
       configLine: {
         x: 360,
         y: 267,
@@ -54,7 +49,8 @@ export default {
         y: 267,
         offset: {x: 20, y: 20}
       },
-      configImg: null
+      configImg: null,
+      obsList:[]
     }
   },
   mounted() {
@@ -76,8 +72,6 @@ export default {
       var config = this.configLine
       config.points.push(xy_pos[0])
       config.points.push(xy_pos[1])
-
-
       if ((Math.abs(xy_pos[0]) >= (this.configKonva.width / 2 - 30)) || (Math.abs(xy_pos[1]) >= (this.configKonva.height / 2 - 30))) {
         config.scaleX = 0.5
         config.scaleY = 0.5
@@ -95,8 +89,34 @@ export default {
       var node = this.$refs.rover.getNode()
       // node.x = this.configImgLayer.x + 100
       // node.offsetY = 20
-      node.rotation(this.yaw);
+      node.rotation((this.yaw/Math.PI)*180);
     },
+    addObs(obs){
+      console.log(obs)
+      var obsDict={
+        id:parseInt(obs[0]),
+        isNew:parseInt(obs[1])
+      }
+      var obsConfig={
+        x:parseFloat(obs[2]),
+        y:parseFloat(obs[3]),
+        radius:parseFloat(obs[4]),
+        fill:obs[5]
+      }
+
+      this.obsList.push(obsDict)
+      this.configCircle.push(obsConfig)
+      console.log(this.configCircle)
+    },
+    resetCanvas() {
+      this.configLine.scaleX = 1
+      this.configLine.scaleY = 1
+      this.configLine.points = []
+      this.configImgLayer.scaleX = 1
+      this.configImgLayer.scaleY = 1
+      this.configImgLayer.x = 360
+      this.configImgLayer.y = 267
+    }
   }
 }
 </script>

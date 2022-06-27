@@ -85,7 +85,7 @@
                 </el-row>
                 <el-row>
                   <input
-                      style="width: 200px;height: 24px;"
+                      style="width: 200px;height: 20px;"
                       placeholder="Enter command line"
                       v-model="cmd_input"
                       @keyup.enter="enterCMD()"
@@ -101,7 +101,7 @@
                     class="shadedbox">
                   <img v-if="connectState" alt="" src="../assets/arrow_on.png"
                        style="object-fit: scale-down;  height: 50px;width: 50px;margin-top: 5px"
-                       v-bind:style="{transform: 'rotate('+ ((yaw*180)/Math.PI+180) +'deg)'}">
+                       v-bind:style="{transform: 'rotate('+ ((yaw*180)/Math.PI) +'deg)'}">
                   <img v-if="!connectState" alt="" src="../assets/arrow.png"
                        style="object-fit: scale-down; opacity: 0.6; height: 50px;width: 50px;margin-top: 5px">
                 </div>
@@ -190,9 +190,9 @@
         </div>
       </el-main>
       <el-main style="margin: auto;">
-<!--        <canvas class="canvas" :width="720" :height="535" id="ctx"-->
-<!--        ></canvas>-->
-        <MapCanvas class="shadedbox" ref="map_canvas" :yaw="debug_yaw"></MapCanvas>
+        <!--        <canvas class="canvas" :width="720" :height="535" id="ctx"-->
+        <!--        ></canvas>-->
+        <MapCanvas class="shadedbox" ref="map_canvas" :yaw="yaw"></MapCanvas>
       </el-main>
     </el-container>
   </div>
@@ -200,6 +200,7 @@
 
 <script>
 import MapCanvas from "@/components/MapCanvas";
+
 export default {
   name: 'RoverMap',
   props: {
@@ -245,15 +246,16 @@ export default {
         {color: '#1989fa', sensor_quality: 40},
         {color: '#1989fa', sensor_quality: 50}
       ],
-      debug_yaw:0
+      debug_yaw: 0
     }
   },
   mounted() {
+    let that = this
     setInterval(
         () => {
           //gamepad test comment following part for real situation
-          this.x_y_loc[0] += this.moveX /10
-          this.x_y_loc[1] += this.moveY /10
+          // this.x_y_loc[0] += this.moveX /10
+          // this.x_y_loc[1] += this.moveY /10
 
           //monitor
           // this.xy_str = [-this.x_y_loc[0] + 350, -this.x_y_loc[1] + 250].toString()
@@ -261,6 +263,7 @@ export default {
 
           //gamepad
           if (this.connectState && this.driveState) {
+            // this.sendAlert("Started control", "success")
             var x2 = 0
             var y2 = 0
             if ((this.moveX !== 0) && (this.moveY !== 0)) {
@@ -314,13 +317,17 @@ export default {
             // for(var i=0;i<cmessage.length;i++){
             //   string+=String.fromCharCode(cmessage[i])
             // }
-            if(this.web_socket.isReady){
-              this.web_socket.send(String.fromCharCode.apply(null, cmessage))
-            }
-
+            // if(this.web_socket.isReady){
+            //   this.sendAlert("Control message sent", "success")
+            //   this.web_socket.send(String.fromCharCode.apply(null, cmessage))
+            // }
+            this.web_socket.send(String.fromCharCode.apply(null, cmessage))
           }
-          this.debug_yaw+=10
-          this.$refs.map_canvas.addPos(this.x_y_loc);
+          this.debug_yaw += 10
+          if (that.$refs.map_canvas) {
+            that.$refs.map_canvas.addPos(this.x_y_loc);
+          }
+
         },
         150
     )
@@ -384,10 +391,13 @@ export default {
       this.intensity = 0;
       this.slideX = 0;
       this.slideY = 0;
+      var cmessage = new Uint8Array([36, 2, 5])
+      this.dataList.push("control msg sent: reset");
+      this.web_socket.send(String.fromCharCode.apply(null, cmessage))
       this.ResetCanvas()
     },
     ResetCanvas() {
-
+      this.$refs.map_canvas.resetCanvas();
     },
 
     initWebSocket() {
@@ -410,24 +420,16 @@ export default {
       this.sendAlert("Monitor socket opened", "success")
 
     },
-    RegGamepad() {
-      this.web_socket.send(String.fromCharCode.apply(null, [36, 0, 1]))
-      console.log('gamepad socket opened');
-    },
-    DisRegGamepad() {
-      this.web_socket.send(String.fromCharCode.apply(null, [36, 0, 2]))
-    },
     NavigateStart() {
       var state = 0;
       var pos_x = 0;
       var pos_y = 0;
       // console.log("navigate")
       this.sendAlert("Starting navigation", "info")
-      const canvas = document.getElementById("ctx");
       let that = this
       this.nav_state = setInterval(function () {
         if (state === 0) {
-          pos_y = canvas.height - 50;
+          pos_y = 200;
         } else if (state === 1) {
           pos_x = pos_x + 100
         } else if (state === 2) {
@@ -461,9 +463,15 @@ export default {
     },
     pauseHandler() {
       if (this.pauseState) {
+        this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 3, 3]))
         clearInterval(this.nav_state)
       } else {
-        this.NavigateStart()
+        if (this.driveState) {
+          this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 3, 2]))
+        } else {
+          this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 3, 0]))
+        }
+        // this.NavigateStart()
       }
     },
 
@@ -489,9 +497,14 @@ export default {
         this.dataList.push("control msg sent: " + cmessage);
         if (this.connectState) {
           this.web_socket.send(String.fromCharCode.apply(null, cmessage))
+          this.sendAlert("Command sent", "success")
         } else {
           this.sendAlert("No connection!", "warning")
         }
+      } else if (this.cmd_input.includes("obs")) {
+        var obs = this.cmd_input.split("obs ")[1].split(" ")
+        this.$refs.map_canvas.addObs(obs);
+        this.sendAlert("Command sent", "success")
       } else {
         this.sendAlert("Invalid input", "warning")
       }
@@ -509,10 +522,10 @@ export default {
     modeSwitchHandler() {
       if (this.driveState) {
         this.ModeDisplay = "Manual Mode"
-        this.RegGamepad()
+        this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 3, 2]))
       } else {
         this.ModeDisplay = "Auto Mode"
-        this.DisRegGamepad()
+        this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 3, 0]))
       }
     },
     onClose() {
@@ -536,13 +549,28 @@ export default {
         this.yaw = parseFloat(msg.split("yaw:")[1].split(",")[0])
         this.sensor_quality = parseFloat(msg.split("qual:")[1].split(",")[0])
         this.intensity = parseFloat(msg.split("ctrl:")[1].split(",")[0]) / 5.1
-
-        if (this.driveState !== !!parseInt(msg.split("mode:")[1].split(",")[0])) {
-          this.sendAlert("Wrong drive mode!", "warning")
+        var mpu = parseFloat(msg.split("mpu:")[1].split(",")[0])
+        console.log(mpu)
+        var mode = parseInt(msg.split("mode:")[1].split(",")[0])
+        if (this.driveState) {
+          if (mode !== 2) {
+            this.sendAlert("Wrong drive mode!", "warning")
+          }
+        } else {
+          if (this.pauseState && (mode === 3)) {
+            console.log()
+            // this.sendAlert("Mode Switched!", "success")
+          } else if (mode === 0) {
+            console.log()
+            // this.sendAlert("Mode Switched!", "success")
+          } else {
+            this.sendAlert("Wrong drive mode!", "warning")
+          }
         }
         this.$refs.map_canvas.addPos(this.x_y_loc);
-
-        // console.log("x: %f y: %f yaw: %f q:%f", this.x_y_loc[0], this.x_y_loc[1],this.yaw,this.sensor_quality);
+      } else if (msg.indexOf("$obs:") !== -1) {
+        var obs = msg.split("$obs:")[1].split(" ")
+        this.$refs.map_canvas.addObs(obs);
       }
     },
     sendAlert(str, state) {
