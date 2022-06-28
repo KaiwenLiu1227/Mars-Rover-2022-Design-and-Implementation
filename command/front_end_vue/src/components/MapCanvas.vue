@@ -1,9 +1,22 @@
 <template>
   <div>
-    <el-switch active-text="RadarPlot" v-model="showPlot" @change="showHandler()"
-               style="margin-left:580px;margin-top: 10px;"/>
+    <el-row style="margin-top: 10px">
+      <el-col :span="6"></el-col>
+      <el-col :span="6">
+        <el-switch active-text="ZoomOut" v-model="isZoom" @change="showHandler()"
+                   style=""/>
+      </el-col>
+      <el-col :span="6">
+        <el-switch active-text="RadarPlot" v-model="showRadar" @change="showHandler()"
+                   style=""/>
+      </el-col>
+      <el-col :span="6">
+        <el-switch active-text="RoutePlot" v-model="showRoute" @change="showHandler()"
+                   style=""/>
+      </el-col>
+    </el-row>
     <v-stage ref="stage" :config="configKonva">
-      <v-layer ref="layer">
+      <v-layer ref="layer" :config="configMainLayer">
         <v-circle v-for="(item,i) in configCircle" :config="configCircle[i]"></v-circle>
         <v-text v-for="(item,i) in configText" :config="configText[i]"></v-text>
         <v-line :config="configLine" :key="componentKey"/>
@@ -32,16 +45,21 @@ export default {
   data() {
     return {
       renderComponent: true,
-      showPlot: true,
+      showRadar: true,
+      isZoom:false,
+      showRoute: true,
+      showCar: true,
       componentKey: 0,
       configKonva: {
         width: 720,
         height: 535,
+        scale: 1,
         draggable: true
       },
       configDotLayer:{
         opacity:1
       },
+      configMainLayer:{},
       configDots: [{
         x: 100,
         y: 100,
@@ -89,18 +107,20 @@ export default {
       var config = this.configLine
       config.points.push(xy_pos[0])
       config.points.push(xy_pos[1])
-      var scale = 0.75
-      if ((Math.abs(xy_pos[0]) >= (this.configKonva.width / 2 - 30)) || (Math.abs(xy_pos[1]) >= (this.configKonva.height / 2 - 30))) {
-        config.scaleX = scale
-        config.scaleY = scale
-        this.configImgLayer.scaleX = scale
-        this.configImgLayer.scaleY = scale
-        this.configImgLayer.x = 360 + xy_pos[0] * scale
-        this.configImgLayer.y = 267 + xy_pos[1] * scale
-      } else {
+      // var scale = 0.75
+      // if ((Math.abs(xy_pos[0]) >= (this.configKonva.width / 2 - 30)) || (Math.abs(xy_pos[1]) >= (this.configKonva.height / 2 - 30))) {
+      //   this.configDotLayer.scaleX = scale
+      //   this.configDotLayer.scaleY = scale
+      //   this.configMainLayer.scaleX = scale
+      //   this.configMainLayer.scaleY = scale
+      //   this.configImgLayer.scaleX = scale
+      //   this.configImgLayer.scaleY = scale
+      //   this.configImgLayer.x = 360 + xy_pos[0] * scale
+      //   this.configImgLayer.y = 267 + xy_pos[1] * scale
+      // } else {
         this.configImgLayer.x = 360 + xy_pos[0]
         this.configImgLayer.y = 267 + xy_pos[1]
-      }
+      // }
       this.configLine = config
       this.componentKey = this.componentKey + 1
       // console.log(config)
@@ -110,9 +130,9 @@ export default {
       node.rotation((this.yaw/Math.PI)*180);
     },
     addObs(obs){
-      if(parseInt(obs[4])!==18 && parseInt(obs[4])!==27){
-        return
-      }
+      // if(parseInt(obs[4])!==18 && parseInt(obs[4])!==27){
+      //   return
+      // }
       console.log(obs)
       var obsConfig={
         x: -parseFloat(obs[2])+360,
@@ -121,14 +141,21 @@ export default {
         fill: this.colorList[parseInt(obs[4])]
       }
       var textConfig={
-        x: -parseFloat(obs[2])+360,
-        y: parseFloat(obs[3])+267,
-        text: obs[2]+", "+obs[3]
+        x: -parseFloat(obs[2])+355,
+        y: parseFloat(obs[3])+275,
+        text: (parseInt(obs[2])/2).toString() + ", " + (parseInt(obs[3])/2).toString()
       }
       console.log(obs)
       if (parseInt(obs[0]) !== -1){
         // console.log(obs)
+
         if (parseInt(obs[1]) === 1){
+          for (var obs_id in this.configCircle){
+              var obs_item=this.configCircle[obs_id]
+            if (obs_item["fill"] === this.colorList[parseInt(obs[4])]){
+              return
+            }
+          }
           this.configCircle.push(obsConfig)
           this.configText.push(textConfig)
           console.log("new alien")
@@ -153,10 +180,22 @@ export default {
       // console.log(this.configDots)
     },
     showHandler(){
-      if(this.showPlot){
+      if(this.showRadar){
         this.configDotLayer.opacity=1
-      }else{
+      }else if(!this.showRadar){
         this.configDotLayer.opacity=0
+      }
+      if(this.isZoom){
+        this.configKonva.scaleX = 0.75
+        this.configKonva.scaleY = 0.75
+      }else if(!this.isZoom){
+        this.configKonva.scaleX = 1
+        this.configKonva.scaleY = 1
+      }
+      if(this.showRoute){
+        this.configLine.opacity=1
+      }else if(!this.showRoute){
+        this.configLine.opacity=0
       }
     },
     resetCanvas() {
@@ -165,8 +204,13 @@ export default {
       this.configLine.points = []
       this.configCircle = []
       this.configDots = []
+      this.configText = []
       this.configImgLayer.scaleX = 1
       this.configImgLayer.scaleY = 1
+      this.configDotLayer.scaleX = 1
+      this.configDotLayer.scaleY = 1
+      this.configMainLayer.scaleX = 1
+      this.configMainLayer.scaleY = 1
       this.configImgLayer.x = 360
       this.configImgLayer.y = 267
     }

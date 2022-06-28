@@ -20,7 +20,7 @@
                   <el-col :span="5">
                     <div style="width: 24px;height: 14px;background-color: #cccfd2;border-radius: 15%;margin-top: -3px">
                       <h6>
-                        {{ parseInt(x_y_loc[0]) }}</h6></div>
+                        {{ parseInt(x_y_loc[0]/2) }}</h6></div>
                   </el-col>
                 </el-row>
                 <el-row style="float: top;margin-top: -30px">
@@ -30,7 +30,7 @@
                   <el-col :span="4">
                     <div
                         style="width: 24px;height: 14px;background-color: #cccfd2;border-radius: 15%;float:top;margin-top: -3px">
-                      <h6>{{ parseInt(x_y_loc[1]) }}</h6></div>
+                      <h6>{{ parseInt(x_y_loc[1]/2) }}</h6></div>
                   </el-col>
                 </el-row>
               </el-col>
@@ -101,7 +101,7 @@
                     class="shadedbox">
                   <img v-if="connectState" alt="" src="../assets/arrow_on.png"
                        style="object-fit: scale-down;  height: 50px;width: 50px;margin-top: 5px"
-                       v-bind:style="{transform: 'rotate('+ ((yaw*180)/Math.PI) +'deg)'}">
+                       v-bind:style="{transform: 'rotate('+ ((-yaw*180)/Math.PI-180) +'deg)'}">
                   <img v-if="!connectState" alt="" src="../assets/arrow.png"
                        style="object-fit: scale-down; opacity: 0.6; height: 50px;width: 50px;margin-top: 5px">
                 </div>
@@ -126,7 +126,7 @@
                 <el-button class="ctrl_button" :disabled="!connectState" @click="ReturnOrigin()">Return</el-button>
               </el-row>
               <el-row>
-                <el-button class="ctrl_button" :disabled="!connectState" @click="RotateSelf()">Rotate</el-button>
+                <el-button class="ctrl_button" :disabled="!connectState" @click="DisableVision()">Vision</el-button>
               </el-row>
             </el-col>
             <el-col :span="2" style="margin-right: 15px">
@@ -226,6 +226,7 @@ export default {
       hasAlert: false,
       nav_state: false,
       debugState: false,
+      visionSate: false,
       intensity: 0,
       sensor_quality: 0,
       cmd_input: '',
@@ -265,7 +266,7 @@ export default {
           // this.x_y_loc[1] += this.moveY /10
           // this.debug_yaw += 0.1
           // if(this.debug_yaw>=Math.PI){
-          //   this.debug_yaw=-Math.PI
+          //   this.debug_yaw=-Math.PIh      hy
           // }
           // this.yaw = this.debug_yaw
           // this.$refs.map_canvas.addPos(this.x_y_loc);
@@ -339,6 +340,7 @@ export default {
       this.intensity = 0;
       this.slideX = 0;
       this.slideY = 0;
+      this.visionSate=false;
       var cmessage = new Uint8Array([36, 2, 5])
       this.dataList.push("control msg sent: reset");
       this.web_socket.send(String.fromCharCode.apply(null, cmessage))
@@ -400,27 +402,43 @@ export default {
       }, 500);
     },
     sendPos(pos_x,pos_y){
-      var cmessage = [36,2,1]
+      var cmessage = [36,2,6]
       if (pos_x > 0) {
         cmessage.push(1)
       } else {
         cmessage.push(0)
       }
-      if (pos_x>120 && pos_x<240){
+      pos_x= Math.abs(pos_x)
+      if (pos_x<120){
+        cmessage.push(Math.abs(pos_x))
+        cmessage.push(1)
+      }
+      else if (pos_x>=120 && pos_x<240){
         cmessage.push(Math.abs(parseInt(pos_x/2)))
         cmessage.push(2)
-      }if(pos_x>=240 && pos_x<360){
+      }else if(pos_x>=240 && pos_x<360){
         cmessage.push(Math.abs(parseInt(pos_x/3)))
         cmessage.push(3)
       }
       if (pos_y > 0) {
+        cmessage.push(1)
+      } else {
+        cmessage.push(0)
+      }
+      pos_y= Math.abs(pos_y)
+      if (pos_x<120){
+        cmessage.push(Math.abs(pos_y))
+        cmessage.push(1)
+      }
+      else if (pos_y>120 && pos_y<240) {
         cmessage.push(Math.abs(parseInt(pos_y/2)))
         cmessage.push(2)
-      } else {
+      } else if(pos_y>=240 && pos_y<360){
         cmessage.push(Math.abs(parseInt(pos_y/3)))
         cmessage.push(3)
       }
       this.pushList().push(cmessage)
+      console.log(cmessage)
       this.web_socket.send(String.fromCharCode.apply(null, cmessage))
     },
     pauseHandler() {
@@ -445,6 +463,7 @@ export default {
         var pos_y = parseInt(this.cmd_input.split("pos")[1].split(",")[1])
         this.dataList.push("control msg sent");
         if (this.connectState) {
+          console.log(pos_x,pos_y)
           this.sendPos(pos_x,pos_y)
           this.sendAlert("Command sent", "success")
           this.cmd_input = ""
@@ -473,8 +492,18 @@ export default {
     ReturnOrigin() {
       this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 1, 0, 0, 0, 0]))
     },
-    RotateSelf() {
-      this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 1, 2, 5]))
+    DisableVision() {
+
+      if(this.visionSate){
+        this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 7, 1]))
+        this.visionSate = false
+      }else{
+        this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 7, 0]))
+        this.visionSate = true
+      }
+      console.log("vision state changed")
+      console.log(this.visionSate)
+
     },
     connectHandler() {
       if (this.connectState) {
