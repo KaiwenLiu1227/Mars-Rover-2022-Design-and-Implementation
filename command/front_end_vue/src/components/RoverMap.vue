@@ -4,7 +4,7 @@
                   @mouseup="mouseEnd">
       <el-main width="400px" style="margin-left: 10px">
         <div
-            class="shadedbox" style="height: 220px;margin-bottom: 40px;">
+            class="shadedbox" style="height: 240px;margin-bottom: 43px;">
           <el-col style="margin-left: 15px;margin-top: 15px">
             <el-row>
               <el-col :span="7">
@@ -55,7 +55,7 @@
                   <el-col :span="4">
                     <div
                         style="width: 24px;height: 14px;background-color: #cccfd2;border-radius: 15%;float:top;margin-top: -3px">
-                      <h6>{{ alien_list.length }}</h6></div>
+                      <h6>{{ obs_cnt }}</h6></div>
                   </el-col>
                 </el-row>
               </el-col>
@@ -69,7 +69,7 @@
                   <el-col :span="8">
                     <h6>Sensor. Quality.</h6>
                   </el-col>
-                  <el-col :span="4" style="margin-top: 3px">
+                  <el-col :span="4" style="margin-top: 3px; margin-left: 3px">
                     <el-progress type="dashboard" :color="colors" :percentage="sensor_quality" :width=70></el-progress>
                   </el-col>
                 </el-row>
@@ -97,7 +97,7 @@
               </el-col>
               <el-col :span="4" style="margin-top: 10px">
                 <div
-                    style="height: 60px; width: 60px; border-radius: 100%; margin-top: -10px;margin-left: 10px;"
+                    style="height: 60px; width: 60px; border-radius: 100%; margin-top: -10px;margin-left: 1px;"
                     class="shadedbox">
                   <img v-if="connectState" alt="" src="../assets/arrow_on.png"
                        style="object-fit: scale-down;  height: 50px;width: 50px;margin-top: 5px"
@@ -110,7 +110,7 @@
           </el-col>
         </div>
         <div
-            class="shadedbox" style="height: 270px; ">
+            class="shadedbox" style="height: 290px; ">
           <el-row style="margin-left: 10px;margin-top: 10px">
             <el-col :span="4" style="margin-right: 5px">
               <el-row>
@@ -122,6 +122,12 @@
               <el-row>
                 <el-button class="ctrl_button" :disabled="!connectState" @click="ResetCanvas()">Clear</el-button>
               </el-row>
+              <el-row>
+                <el-button class="ctrl_button" :disabled="!connectState" @click="ReturnOrigin()">Return</el-button>
+              </el-row>
+              <el-row>
+                <el-button class="ctrl_button" :disabled="!connectState" @click="RotateSelf()">Rotate</el-button>
+              </el-row>
             </el-col>
             <el-col :span="2" style="margin-right: 15px">
               <div
@@ -132,7 +138,7 @@
                     :max="100"
                     v-model="slideX"
                     vertical
-                    height="180px"
+                    height="200px"
                     style="margin-left: -4px;margin-bottom: 16px;margin-top: 16px;"
                 >
                 </el-slider>
@@ -148,7 +154,7 @@
                     :min="-100"
                     :max="100"
                     vertical
-                    height="180px"
+                    height="200px"
                     style="margin-left: -4px;margin-bottom: 16px;margin-top: 16px;"
                 >
                 </el-slider>
@@ -162,7 +168,7 @@
                     disabled
                     v-model="intensity"
                     vertical
-                    height="180px"
+                    height="200px"
                     style="margin-left: -4px;margin-bottom: 16px;margin-top: 16px;"
                 >
                 </el-slider>
@@ -192,7 +198,7 @@
       <el-main style="margin: auto;">
         <!--        <canvas class="canvas" :width="720" :height="535" id="ctx"-->
         <!--        ></canvas>-->
-        <MapCanvas class="shadedbox" ref="map_canvas" :yaw="yaw"></MapCanvas>
+        <MapCanvas class="shadedbox" ref="map_canvas" :yaw="-Math.PI-yaw"></MapCanvas>
       </el-main>
     </el-container>
   </div>
@@ -219,6 +225,7 @@ export default {
       mouse_state: false,
       hasAlert: false,
       nav_state: false,
+      debugState: false,
       intensity: 0,
       sensor_quality: 0,
       cmd_input: '',
@@ -228,7 +235,7 @@ export default {
       x_y_loc: [0, 0],
       yaw: 0,
       gamepad_data: [0, 0, 0, 0],
-      alien_list: [],
+      obs_cnt: 0,
       joystick_x: 50,
       joystick_y: 50,
       joystick_x_init: 0,
@@ -256,6 +263,12 @@ export default {
           //gamepad test comment following part for real situation
           // this.x_y_loc[0] += this.moveX /10
           // this.x_y_loc[1] += this.moveY /10
+          // this.debug_yaw += 0.1
+          // if(this.debug_yaw>=Math.PI){
+          //   this.debug_yaw=-Math.PI
+          // }
+          // this.yaw = this.debug_yaw
+          // this.$refs.map_canvas.addPos(this.x_y_loc);
 
           //monitor
           // this.xy_str = [-this.x_y_loc[0] + 350, -this.x_y_loc[1] + 250].toString()
@@ -303,85 +316,20 @@ export default {
                 status_byte = 3
                 right = clamp(parseInt(255 * angle2 / 90), 30, 255)
                 left = clamp(parseInt(255 * (2 - angle2 / 90)), 30, 255)
-
               }
-
             }
             var pwn1 = parseInt(left / 2)
             var pwn2 = parseInt(right / 2)
-            // console.log("%f , %f" ,pwn1, pwn2)
             var cmessage = new Uint8Array([36, 1, status_byte, pwn1, pwn2])
             this.dataList.push("control msg sent: " + cmessage);
-            // console.log(cmessage)
-            // var string=""
-            // for(var i=0;i<cmessage.length;i++){
-            //   string+=String.fromCharCode(cmessage[i])
-            // }
-            // if(this.web_socket.isReady){
-            //   this.sendAlert("Control message sent", "success")
-            //   this.web_socket.send(String.fromCharCode.apply(null, cmessage))
-            // }
             this.web_socket.send(String.fromCharCode.apply(null, cmessage))
           }
-          this.debug_yaw += 10
           if (that.$refs.map_canvas) {
-            that.$refs.map_canvas.addPos(this.x_y_loc);
+            that.$refs.map_canvas.addPos(that.x_y_loc);
           }
-
         },
         150
     )
-  },
-  watch: {
-    // xy_str: function (new_XY, old_XY) {
-    //   const canvas = document.getElementById("ctx");
-    //   const ctx = canvas.getContext("2d");
-    //   // ctx.translate(360,278)
-    //   const newXY = [parseFloat(new_XY.split(",")[0]), parseFloat(new_XY.split(",")[1])]
-    //   const oldXY = [parseFloat(old_XY.split(",")[0]), parseFloat(old_XY.split(",")[1])]
-    //
-    //   // erase original arrow
-    //   //eraser 1
-    //   // ctx.moveTo(oldXY[0] + 32 * Math.cos(this.yaw), oldXY[1] - 32 * Math.sin(this.yaw))
-    //   // ctx.lineTo(oldXY[0] + 10 * Math.sin(this.yaw) - 20 * Math.cos(this.yaw), oldXY[1] - 10 * Math.cos(this.yaw) + 20 * Math.sin(this.yaw))
-    //   // ctx.lineTo(oldXY[0] + 2 * Math.cos(this.yaw), oldXY[1] - 2 * Math.sin(this.yaw))
-    //   // ctx.lineTo(oldXY[0] - 10 * Math.sin(this.yaw) + 20 * Math.cos(this.yaw), oldXY[1] + 10 * Math.cos(this.yaw) - 20 * Math.sin(this.yaw))
-    //   // ctx.fillStyle = "#ffffff";
-    //   // ctx.fill()
-    //
-    //   //eraser 2
-    //   ctx.fillStyle = "#ffffff";
-    //   ctx.fillRect(oldXY[0] - 5, oldXY[1] - 5, 10, 10);
-    //
-    //   ctx.fillStyle = 'red'
-    //   ctx.fillRect(-10, -10, 20,20)
-    //
-    //   ctx.strokeStyle = '#3350e0';
-    //
-    //   //draw line
-    //
-    //   ctx.lineWidth = 1;
-    //   ctx.moveTo(oldXY[0], oldXY[1]);
-    //   ctx.lineTo(newXY[0], newXY[1]);
-    //
-    //   //draw arrow
-    //   // ctx.strokeStyle = '#c70303';
-    //   // ctx.beginPath()
-    //   // ctx.moveTo(newXY[0] + 20 * Math.cos(this.yaw), newXY[1] - 20 * Math.sin(this.yaw))
-    //   // ctx.lineTo(newXY[0] + 2 * Math.sin(this.yaw), newXY[1] + 2 * Math.cos(this.yaw))
-    //   // ctx.lineTo(newXY[0] - 2 * Math.sin(this.yaw), newXY[1] - 2 * Math.cos(this.yaw))
-    //   // ctx.lineTo(newXY[0] + 20 * Math.cos(this.yaw), newXY[1] - 20 * Math.sin(this.yaw))
-    //
-    //   //draw square
-    //   ctx.fillStyle = "#6b45a1";
-    //   ctx.fillRect(newXY[0] - 3, newXY[1] - 3, 6, 6);
-    //   // ctx.save()
-    //   ctx.scale(0.5,0.5)
-    //   ctx.stroke();
-    //
-    //   // this.dataList.push("xy: " + parseInt(newXY[0]) + " " + parseInt(newXY[1]));
-    //   // this.dataList.push("yaw: " + this.yaw)
-    // },
   },
   methods: {
     ResetAll() {
@@ -401,7 +349,7 @@ export default {
     },
 
     initWebSocket() {
-      const gateway = "ws://192.168.1.80:80/control";
+      const gateway = "ws://192.168.4.1:80/control";
       console.log('Trying to open a WebSocket connection...');
       this.sendAlert("Trying to open a WebSocket connection...", "info")
       this.web_socket = new WebSocket(gateway);
@@ -428,38 +376,52 @@ export default {
       this.sendAlert("Starting navigation", "info")
       let that = this
       this.nav_state = setInterval(function () {
-        if (state === 0) {
-          pos_y = 200;
-        } else if (state === 1) {
-          pos_x = pos_x + 100
-        } else if (state === 2) {
-          pos_y = 50
-        } else if (state === 3) {
-          state = -1
-          pos_x = pos_x + 100
+        if (!(!that.driveState && that.connectState)) {
+          return
         }
-        state = state + 1
-        var cmessage = [36]
-        cmessage.push(2)
-        cmessage.push(1)
-        if (pos_x > 0) {
-          cmessage.push(1)
-        } else {
-          cmessage.push(0)
+        console.log(Math.sqrt(Math.pow(pos_x - that.x_y_loc[0] / 2, 2) + Math.pow(pos_y - that.x_y_loc[1] / 2, 2)))
+        if (that.intensity * 5.1 <= 120 && Math.sqrt(Math.pow(pos_x - that.x_y_loc[0] / 2, 2) + Math.pow(pos_y - that.x_y_loc[1] / 2, 2)) <= 20) {
+          if (state === 0) {
+            pos_y = 100;
+          } else if (state === 1) {
+            pos_x = pos_x + 30
+          } else if (state === 2) {
+            pos_y = 0
+          } else if (state === 3) {
+            state = -1
+            pos_x = pos_x + 30
+          }
+          if (pos_x > 120) {
+            return;
+          }
+          state = state + 1
+          that.sendPos(pos_x,pos_y)
         }
-        cmessage.push(Math.abs(pos_x))
-        if (pos_y > 0) {
-          cmessage.push(1)
-        } else {
-          cmessage.push(0)
-        }
-        cmessage.push(Math.abs(pos_y))
-        // that.x_y_loc = [pos_x, pos_y]
-        // that.xy_str = [-that.x_y_loc[0] + 700, -that.x_y_loc[1] + 500].toString()
-        // console.log(that.xy_str)
-        that.pushList().push(cmessage)
-        that.web_socket.send(String.fromCharCode.apply(null, cmessage))
       }, 500);
+    },
+    sendPos(pos_x,pos_y){
+      var cmessage = [36,2,1]
+      if (pos_x > 0) {
+        cmessage.push(1)
+      } else {
+        cmessage.push(0)
+      }
+      if (pos_x>120 && pos_x<240){
+        cmessage.push(Math.abs(parseInt(pos_x/2)))
+        cmessage.push(2)
+      }if(pos_x>=240 && pos_x<360){
+        cmessage.push(Math.abs(parseInt(pos_x/3)))
+        cmessage.push(3)
+      }
+      if (pos_y > 0) {
+        cmessage.push(Math.abs(parseInt(pos_y/2)))
+        cmessage.push(2)
+      } else {
+        cmessage.push(Math.abs(parseInt(pos_y/3)))
+        cmessage.push(3)
+      }
+      this.pushList().push(cmessage)
+      this.web_socket.send(String.fromCharCode.apply(null, cmessage))
     },
     pauseHandler() {
       if (this.pauseState) {
@@ -477,37 +439,42 @@ export default {
 
     enterCMD: function () {
       // console.log("enter")
+      this.$refs.map_canvas.addLidarDot(this.yaw * 100);
       if (this.cmd_input.includes("pos")) {
         var pos_x = parseInt(this.cmd_input.split("pos")[1].split(",")[0])
         var pos_y = parseInt(this.cmd_input.split("pos")[1].split(",")[1])
-        this.cmd_input = ""
-        var cmessage = [36, 2, 1]
-        if (pos_x > 0) {
-          cmessage.push(1)
-        } else {
-          cmessage.push(0)
-        }
-        cmessage.push(Math.abs(pos_x))
-        if (pos_y > 0) {
-          cmessage.push(1)
-        } else {
-          cmessage.push(0)
-        }
-        cmessage.push(Math.abs(pos_y))
-        this.dataList.push("control msg sent: " + cmessage);
+        this.dataList.push("control msg sent");
         if (this.connectState) {
-          this.web_socket.send(String.fromCharCode.apply(null, cmessage))
+          this.sendPos(pos_x,pos_y)
           this.sendAlert("Command sent", "success")
+          this.cmd_input = ""
         } else {
           this.sendAlert("No connection!", "warning")
         }
       } else if (this.cmd_input.includes("obs")) {
+        console.log("add obs")
         var obs = this.cmd_input.split("obs ")[1].split(" ")
         this.$refs.map_canvas.addObs(obs);
         this.sendAlert("Command sent", "success")
-      } else {
+        this.cmd_input = ""
+      } else if(this.cmd_input.includes("yaw")){
+        var ymessage = [36,2,1]
+        var cmode = parseInt(this.cmd_input.split("yaw ")[1].split(" ")[0])
+        var cyaw = parseInt(this.cmd_input.split("yaw ")[1].split(" ")[1])
+        ymessage.push(cmode)
+        ymessage.push(cyaw)
+        this.web_socket.send(String.fromCharCode.apply(null, ymessage))
+        this.sendAlert("Command sent", "success")
+        this.cmd_input = ""
+      }else {
         this.sendAlert("Invalid input", "warning")
       }
+    },
+    ReturnOrigin() {
+      this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 1, 0, 0, 0, 0]))
+    },
+    RotateSelf() {
+      this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 1, 2, 5]))
     },
     connectHandler() {
       if (this.connectState) {
@@ -530,6 +497,7 @@ export default {
     },
     onClose() {
       console.log('Connection closed');
+      clearInterval(this.nav_state)
       if (this.connectState) {
         setTimeout(this.initWebSocket, 100);
       }
@@ -546,31 +514,33 @@ export default {
         var x_y_pos = msg.split("real:")[1].split(",")[0].split(" ");
         this.x_y_loc[0] = parseFloat(x_y_pos[0]) * 2;
         this.x_y_loc[1] = parseFloat(x_y_pos[1]) * 2;
-        this.yaw = parseFloat(msg.split("yaw:")[1].split(",")[0])
-        this.sensor_quality = parseFloat(msg.split("qual:")[1].split(",")[0])
+        this.yaw = parseFloat(msg.split("yaw:")[1].split(",")[0] / 180 * Math.PI)
+        this.sensor_quality = parseFloat(msg.split("qual:")[1].split(",")[0]) / 2.5
         this.intensity = parseFloat(msg.split("ctrl:")[1].split(",")[0]) / 5.1
-        var mpu = parseFloat(msg.split("mpu:")[1].split(",")[0])
-        console.log(mpu)
+        this.obs_cnt = parseInt(msg.split("obs_cnt:")[1].split(",")[0])
         var mode = parseInt(msg.split("mode:")[1].split(",")[0])
-        if (this.driveState) {
+        if (this.pauseState) {
+          if (mode !== 3) {
+            this.sendAlert("Wrong drive mode!", "warning")
+            this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 3, 3]))
+          }
+        } else if (this.driveState) {
           if (mode !== 2) {
-            this.sendAlert("Wrong drive mode!", "warning")
+            this.sendAlert("Wrong drive mode !", "warning")
+            this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 3, 2]))
           }
-        } else {
-          if (this.pauseState && (mode === 3)) {
-            console.log()
-            // this.sendAlert("Mode Switched!", "success")
-          } else if (mode === 0) {
-            console.log()
-            // this.sendAlert("Mode Switched!", "success")
-          } else {
-            this.sendAlert("Wrong drive mode!", "warning")
-          }
+        } else if(mode !== 0){
+          this.sendAlert("Wrong drive mode !", "warning")
+          this.web_socket.send(String.fromCharCode.apply(null, [36, 2, 3, 0]))
         }
-        this.$refs.map_canvas.addPos(this.x_y_loc);
+        // var lida = parseFloat(msg.split("lidar:")[1].split(",")[0])
+        // this.$refs.map_canvas.addDot(lida);
+        // this.$refs.map_canvas.addPos(this.x_y_loc);
       } else if (msg.indexOf("$obs:") !== -1) {
         var obs = msg.split("$obs:")[1].split(" ")
         this.$refs.map_canvas.addObs(obs);
+      } else if (msg.indexOf("$ld") !== -1) {
+        this.$refs.map_canvas.addLidarDot(parseFloat(msg.split("$ld:")[1]));
       }
     },
     sendAlert(str, state) {
@@ -708,9 +678,9 @@ export default {
 
 .ctrl_button {
   margin-top: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 13px;
   width: 60px;
-  height: 50px;
+  height: 35px;
   border: 1px solid rgb(199, 198, 198);
   box-shadow: 2px 2px 2px 1px rgba(74, 74, 255, 0.2);
 }

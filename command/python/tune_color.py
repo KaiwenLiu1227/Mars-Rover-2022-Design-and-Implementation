@@ -5,6 +5,7 @@ import ctypes
 import matplotlib.pyplot as plt
 import struct
 import cv2
+
 winName = 'Mars Rover HSV tuner by Quix EIE'
 
 try:
@@ -18,6 +19,11 @@ except Exception as e:
 def nothing(x):
     pass
 
+
+while True:
+    a = ju.read()
+    if a:
+        print(a)
 
 # ju.write(b'123')
 # a=b'\x49\x03b\x03c\x03'
@@ -42,7 +48,7 @@ cam_id = 0
 # color = int(input("color:")) & 0x7
 winName = 'Mars Rover HSV tuner by Quix EIE'
 # capture = cv2.VideoCapture(cam_id)
-cv2.namedWindow(winName,cv2.WINDOW_NORMAL)
+cv2.namedWindow(winName, cv2.WINDOW_NORMAL)
 cv2.resizeWindow(winName, 300, 300)
 # 新建6个滑动条，表示颜色范围的上下边界，这里滑动条的初始化位置即为黄色的颜色范围
 cv2.createTrackbar('Color', winName, 0, 7, nothing)
@@ -54,10 +60,11 @@ cv2.createTrackbar('UpperbH', winName, 176, 360, nothing)
 cv2.createTrackbar('UpperbS', winName, 255, 255, nothing)
 cv2.createTrackbar('UpperbV', winName, 166, 255, nothing)
 # cv2.createButton("Set",nothing,buttonType=0)
-state=0
+state = 0
 while True:
+
     # 函数cv2.getTrackbarPos()范围当前滑块对应的值
-    color= cv2.getTrackbarPos('Color', winName) & 0x7
+    color = cv2.getTrackbarPos('Color', winName) & 0x7
     mode = cv2.getTrackbarPos('Setting Mode', winName)
     lowerbH = cv2.getTrackbarPos('LowerbH', winName)
     lowerbS = cv2.getTrackbarPos('LowerbS', winName)
@@ -67,13 +74,13 @@ while True:
     upperbV = cv2.getTrackbarPos('UpperbV', winName)
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
-    if mode==0:
+    if mode == 0:
         continue
     # ret, frame = capture.read()
     # cv2.namedWindow(winName)
     # cv2.imshow(winName, frame)
-    state+=1
-    if state%8==0:
+    state += 1
+    if state % 8 == 0:
         h = (lowerbH) & 0x1ff
         s = lowerbS & 0xff
         v = lowerbV & 0xff
@@ -85,7 +92,7 @@ while True:
         if a:
             print("msg: ")
             print(a)
-    if (state+4) % 16 == 0:
+    if (state + 4) % 16 == 0:
         h = (upperbH) & 0x1ff
         s = upperbS & 0xff
         v = upperbV & 0xff
@@ -97,7 +104,3 @@ while True:
         if a:
             print("msg: ")
             print(a)
-
-
-
-
