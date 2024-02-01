@@ -1,4 +1,4 @@
-![Imperial College London – Catholic Chaplaincy to the Universities and other  Institutes of Higher Education, Diocese of Westminster, London, UK](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.001.jpeg)
+![Imperial College London – Catholic Chaplaincy to the Universities and other  Institutes of Higher Education, Diocese of Westminster, London, UK](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.001.jpeg)
 
 
 **Mars Rover 2022 Design and Implementation**
@@ -89,13 +89,13 @@ Since the alien and the building are slightly different, we calculate the averag
 
 By using rational function fitting for referring y\_center, xy\_count with the real y-distance to the test results. Then according to the Similar Triangle Principle, we get **x\_distance** by multiplying the **y-distance** with the ratio of **x-center** to **y-center** which can be conducted** by the test result. In this way, in practice, we achieved a distance estimation with a precision of +-1cm
 
-![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.004.png) **![Chart, line chart
+![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.004.png) **![Chart, line chart
 Description automatically generated](Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.005.png)**
 
 Besides, since we only know the relative position of the obstacle detected, we need to transfer it into the absolute position by linear rotation transformation. The absolute position was used for obstacle avoidance system. The angle below is the yaw angle of the rover.
 
 ![Diagram
-Description automatically generated with low confidence](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.006.png)![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.007.jpeg)
+Description automatically generated with low confidence](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.006.png)![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.007.jpeg)
 
 **Communication**
 
@@ -117,7 +117,7 @@ The ground control sets up communication with the rover in LAN via the Web socke
 ***Web application page (desktop & mobile):***
 
 ![Graphical user interface, application, Word
-Description automatically generated](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.011.png)
+Description automatically generated](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.011.png)
 
 **Remote Controller**
 
@@ -157,7 +157,7 @@ The aim of the control system is to enable the rover to find a route to the targ
 
 Our control system includes mainly 3 parts, Position controller, Velocity controller and Yaw controller. After receiving the destination position from the route planner. Position controller will process and output it to Velocity controller. Then Velocity controller will output a controlled quantity of velocity based on the velocity difference. Meanwhile the DOA (Dynamic obstacle avoiding) module will give out an avoiding angle. The final throttle module outputs the final throttle value based on the difference between the current yaw and target yaw, which enables the rover to start turning towards the correct yaw before starting to move forward. They add up to give the rotation speed of the two motors as described below
 
-![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.012.png)
+![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.012.png)
 
 ***Yaw\_control=output from the yaw controller***
 
@@ -167,7 +167,7 @@ Our control system includes mainly 3 parts, Position controller, Velocity contro
 
 ***Motor 2 speed = -Yaw\_control + Throttle\_control***
 
-![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.013.jpeg)Considering the case that the difference between target\_yaw and current\_yaw can exceed the range of  -180° to 180° which is invalid for the PID controller. So, an Angle\_difference function is implemented to ensure the angle difference has fit in the correct range.
+![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.013.jpeg)Considering the case that the difference between target\_yaw and current\_yaw can exceed the range of  -180° to 180° which is invalid for the PID controller. So, an Angle\_difference function is implemented to ensure the angle difference has fit in the correct range.
 
 
 
@@ -181,7 +181,7 @@ As described above, this module was used to make sure the throttle was controlle
 
 
 
-![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.014.jpeg)![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.015.jpeg)![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.016.png)![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.017.png)**Throttle\_control =0 (if Δyaw > threshold\_angle)**
+![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.014.jpeg)![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.015.jpeg)![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.016.png)![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.017.png)**Throttle\_control =0 (if Δyaw > threshold\_angle)**
 
 **Dynamic Obstacle Avoidance (DOA)**
 
@@ -193,7 +193,7 @@ When we detect an obstacle by vision, we will create an avoiding circle range ar
 
 Once we know we need to do avoidance, the perpendicular vector of the forwarding vector will be assigned as the avoiding parameter. Depending on the size of the avoiding vector we can decide the quantity of the avoiding vector for they are positively proportional to each other.
 
-![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.018.jpeg)![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.019.jpeg)
+![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.018.jpeg)![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.019.jpeg)
 
 Using the projection formula, we can find the projection of distance vector on the forwarding vector. By using the relation **raw** ***avoiding vector = (distance vector – μ\*forwarding vector)***, the size of avoiding vector is the direction for avoiding. When modulus of the raw avoiding vector is small, the rover needs to have an exceptionally large avoiding velocity, vice versa. The same for the modulus of distance vector. 
 
@@ -201,7 +201,7 @@ Using the projection formula, we can find the projection of distance vector on t
 
 **Angle based Method:**
 
-![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.020.png)The core of this method is that the rover will only consider the range from the -90° to 90° in its relative coordinate system which could reduce repeated computation as long as the rover passes the obstacle. (See the right-side figure) ![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.021.png)![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.022.png)
+![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.020.png)The core of this method is that the rover will only consider the range from the -90° to 90° in its relative coordinate system which could reduce repeated computation as long as the rover passes the obstacle. (See the right-side figure) ![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.021.png)![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.022.png)
 
 ***Angle Diff=Angle difference between current yaw and toward angle for the obstacle (See the right-side figure)***
 
@@ -210,7 +210,7 @@ Using the projection formula, we can find the projection of distance vector on t
 Clearly, smaller the angle difference, larger the avoiding angle.
 
 
-![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.023.png)Besides, the distance of rover to the obstacle also affects the avoiding angle. Closer the distance, the larger the avoiding angle.
+![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.023.png)Besides, the distance of rover to the obstacle also affects the avoiding angle. Closer the distance, the larger the avoiding angle.
 
 Therefore, we got **Total change in direction = sum of ( avoiding extent \* avoiding angle \* distance factor \* distance weight) for each obstacle.** 
 
@@ -224,11 +224,11 @@ Where **distance factor= (detection range-obstacle distance)/ detection range**
 
 **Simulated routes of the rover by python using angle-based method:**
 
-![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.024.png)**(green/red determines the avoidance status of the rover, better to debug)**
+![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.024.png)**(green/red determines the avoidance status of the rover, better to debug)**
 
 Finally, we **chose the angle-based method** to operate on the rover.
 
-![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.025.png)**Route Planning**
+![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.025.png)**Route Planning**
 
 Since we get a powerful position-based controller, we can now set serials of target position the rover would go, then it will go to those points and automatically avoid the detected obstacles. Once the rover reaches the target position, then the planner system either on the remote side or the rover side can automatically set the next position target if that is not the final position. In the test, the rover moves accordingly to the planed route and dynamically avoids the encountered obstacles.
 
@@ -240,7 +240,7 @@ The drive & navigation system includes a TB6612 motor driver chip, an optical fl
 
 By setting high or low for controlling pins, duty cycle of PWM inputs of the driver chip, it’s not hard to control the motors’ rotation speed and rotation direction. However, due to the physical properties of the motors, there is no way to guarantee that the rover will operate perfectly as we want. For example, if we write in code commanding the rover to go straight for 1 meter, it is very likely for us to observe deviations in both yaw and distance. Even it’s just a deviation of a few degrees in yaw and 2-3 centimeters in distance, the accumulation after some turns would have a massive decrease in the accuracy of the map drawn. Therefore, the optical flow sensor acts a vital role in supervising the course of the rover. The integration of the X value obtained from the optical flow sensor can be used as the yaw angle and sent to the main control system to create a closed-loop system to decrease the error.
 
-![](Report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.026.jpeg)
+![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.026.jpeg)
 
 ***OpticalFlowX / Y = sum of OpticalFlowSpeedX / Y***
 
