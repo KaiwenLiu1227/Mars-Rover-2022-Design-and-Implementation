@@ -90,7 +90,7 @@ Since the alien and the building are slightly different, we calculate the averag
 By using rational function fitting for referring y\_center, xy\_count with the real y-distance to the test results. Then according to the Similar Triangle Principle, we get **x\_distance** by multiplying the **y-distance** with the ratio of **x-center** to **y-center** which can be conducted** by the test result. In this way, in practice, we achieved a distance estimation with a precision of +-1cm
 
 ![](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.004.png) **![Chart, line chart
-Description automatically generated](Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.005.png)**
+Description automatically generated](report/Aspose.Words.29a1fd40-3ec4-4967-925f-5d6bce3604f1.005.png)**
 
 Besides, since we only know the relative position of the obstacle detected, we need to transfer it into the absolute position by linear rotation transformation. The absolute position was used for obstacle avoidance system. The angle below is the yaw angle of the rover.
 
